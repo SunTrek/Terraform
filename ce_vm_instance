@@ -1,0 +1,44 @@
+resource "google_compute_instance" "ce_vm_tf" {
+
+    name = "ce-vm-tf"
+    zone = "us-central1-a"
+    machine_type = "e2-standard-4"
+
+    allow_stopping_for_update = true
+    network_interface {
+      network = "default"
+    }
+
+    boot_disk {
+      initialize_params {
+        image = "debian-11-bullseye-v20220822"
+        size = 10
+      }
+      auto_delete = false
+    }
+  
+  scheduling {
+    preemptible = true
+    automatic_restart = false
+  }
+
+  service_account {
+    email = "service-account"
+    scopes = ["cloud-platform"]
+}
+}
+
+resource "google_compute_disk" "disk-tf" {
+    name = "disk-tf"
+    size = 15
+    type = "pd-ssd"
+  
+}
+
+resource "google_compute_attached_disk" "disk-attach-tf" {
+    disk = google_compute_disk.disk-tf.id
+    instance = google_compute_instance.ce_vm_tf.id
+    
+  
+}
+
