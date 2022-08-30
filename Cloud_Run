@@ -1,0 +1,42 @@
+resource "google_cloud_run_service" "cloud-run-tf" {
+    name = "cloud-run-tf"
+    location = "asia-southeast1"
+
+    template {
+      spec {
+        containers {
+          #image = "gcr.io/google-samples/hello-app:1.0"
+          image = "gcr.io/google-samples/hello-app:2.0"
+
+        }
+        
+      }
+    }
+
+  traffic {
+    revision_name = "cloud-run-tf-9x7sf"
+    percent = 50
+  }
+
+  traffic {
+    revision_name = "cloud-run-tf-vgzgs"
+    percent = 50
+  }
+}
+
+
+resource "google_cloud_run_service_iam_policy" "cloud_run_iam" {
+    service = google_cloud_run_service.cloud-run-tf.name
+    location = google_cloud_run_service.cloud-run-tf.location
+    policy_data = data.google_iam_policy.cloud_run_policy_data.policy_data
+
+  
+}
+
+data "google_iam_policy" "cloud_run_policy_data" {
+    binding {
+      role = "roles/run.invoker"
+      members = ["allUsers"]
+    }
+  
+}
